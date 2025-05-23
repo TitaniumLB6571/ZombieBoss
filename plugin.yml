@@ -1,0 +1,13 @@
+name: ZombieBoss
+main: ZombieBoss\\Main
+version: 1.0.0
+api: 5.0.0
+author: ChatGPT
+commands:
+  spawnboss:
+    description: Spawn the zombie boss
+    usage: /spawnboss
+    permission: zombieboss.command.spawnboss
+permissions:
+  zombieboss.command.spawnboss:
+    default: op
