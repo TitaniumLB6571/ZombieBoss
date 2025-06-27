@@ -12,13 +12,33 @@ use pocketmine\entity\effect\{EffectInstance, VanillaEffects};
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\entity\Attribute;
 use pocketmine\entity\EntitySizeInfo;
+use pocketmine\utils\Config;
 
 class ZombieBoss extends Zombie{
+
+    /** @var float */
+    protected static float $cfgHealth = 1000.0;
+    /** @var float */
+    protected static float $cfgMovementSpeed = 0.4;
+    /** @var float */
+    protected static float $cfgAttackDamage = 20.0;
+    /** @var int ticks */
+    protected static int $cfgComboCooldown = 200;
+    /** @var int */
+    protected static int $cfgMinionCount = 3;
 
     /** @var int ticks */
     protected int $comboCooldown = 0;
 
     protected ?Player $target = null;
+
+    public static function loadConfig(Config $config) : void{
+        self::$cfgHealth = (float) $config->get('health', self::$cfgHealth);
+        self::$cfgMovementSpeed = (float) $config->get('movement-speed', self::$cfgMovementSpeed);
+        self::$cfgAttackDamage = (float) $config->get('attack-damage', self::$cfgAttackDamage);
+        self::$cfgComboCooldown = (int) $config->get('combo-cooldown', self::$cfgComboCooldown);
+        self::$cfgMinionCount = (int) $config->get('minion-count', self::$cfgMinionCount);
+    }
 
     public static function getNetworkTypeId() : string{
         return 'zombieboss:zombie_boss';
@@ -30,11 +50,11 @@ class ZombieBoss extends Zombie{
 
     public function initEntity(CompoundTag $nbt) : void{
         parent::initEntity($nbt);
-        $this->setMaxHealth(1000);
-        $this->setHealth(1000);
+        $this->setMaxHealth(self::$cfgHealth);
+        $this->setHealth(self::$cfgHealth);
         $this->setScale(2.0);
-        $this->getAttributeMap()->get(Attribute::MOVEMENT_SPEED)->setValue(0.4);
-        $this->getAttributeMap()->get(Attribute::ATTACK_DAMAGE)->setValue(20.0);
+        $this->getAttributeMap()->get(Attribute::MOVEMENT_SPEED)->setValue(self::$cfgMovementSpeed);
+        $this->getAttributeMap()->get(Attribute::ATTACK_DAMAGE)->setValue(self::$cfgAttackDamage);
     }
 
     protected function findTarget() : ?Player{
@@ -71,7 +91,7 @@ class ZombieBoss extends Zombie{
 
     protected function summonMinions() : void{
         $world = $this->getWorld();
-        for($i = 0; $i < 3; $i++){
+        for($i = 0; $i < self::$cfgMinionCount; $i++){
             $loc = $this->getLocation()->add(mt_rand(-3, 3), 0, mt_rand(-3, 3));
             $z = new VanillaZombie(Location::fromObject($loc, $world, $this->yaw, 0));
             $z->spawnToAll();
@@ -96,7 +116,7 @@ class ZombieBoss extends Zombie{
 
         if($this->comboCooldown <= 0 && $this->target !== null){
             $this->performCombo();
-            $this->comboCooldown = 200; // 10 seconds
+            $this->comboCooldown = self::$cfgComboCooldown;
         }
 
         return $changed;
