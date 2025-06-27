@@ -1,0 +1,5 @@
+health: 1000
+movement-speed: 0.4
+attack-damage: 20.0
+combo-cooldown: 200
+minion-count: 3
